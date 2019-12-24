@@ -83,8 +83,8 @@ public class AsteroidDB extends AndroidNonvisibleComponent implements Component 
     }
 
     @SimpleEvent(description = "This event called when HTTP status code is 4xx.")
-    public void OnError(String message, int statusCode, String throwable) {
-      EventDispatcher.dispatchEvent(this, "OnError", message, statusCode, throwable);
+    public void OnError(String message, int statusCode) {
+      EventDispatcher.dispatchEvent(this, "OnError", message, statusCode);
     }
 
     /*
@@ -171,6 +171,11 @@ public class AsteroidDB extends AndroidNonvisibleComponent implements Component 
       GET("count",null);
     }
 
+    @SimpleFunction(description = "Returns the current AsteroidDB instance version.")
+    public void Version() {
+      GET("version",null);
+    }
+
     @SimpleFunction(description = "Returns true if database password is equals with entered password. Otherwise, false. Can be useful in applications for checking the password before connecting to the database.")
     public void Test() {
       RequestParams params = new RequestParams();
@@ -185,23 +190,23 @@ public class AsteroidDB extends AndroidNonvisibleComponent implements Component 
     @SimpleFunction(description = "Calls AsteroidDB instance with custom parameters. This sends a POST request to your instance. Use this method to execute AsteroidDB methods which is not available in this extension yet. Use list of pairs for 'parameters' socket. Password parameter won't be added automatically.")
     public void CustomPost(String function, YailList parameters) 
     {
-    	RequestParams params = new RequestParams();
-      	for (int i = 0; i < parameters.size(); i++) 
-      	{
-      		params.put(getPairs(parameters, i, 0), getPairs(parameters, i, 0));
-      	}
-      	POST(function,params);
+      RequestParams params = new RequestParams();
+        for (int i = 0; i < parameters.size(); i++) 
+        {
+          params.put(getPairs(parameters, i, 0), getPairs(parameters, i, 0));
+        }
+        POST(function,params);
     }
 
     @SimpleFunction(description = "Calls AsteroidDB instance with custom parameters. This sends a GET request to your instance. Use this method to execute AsteroidDB methods which is not available in this extension yet. Use list of pairs for 'parameters' socket. Password parameter won't be added automatically.")
     public void CustomGet(String function, YailList parameters) 
     {
-    	RequestParams params = new RequestParams();
-      	for (int i = 0; i < parameters.size(); i++) 
-      	{
-      		params.put(getPairs(parameters, i, 0), getPairs(parameters, i, 0));
-      	}
-      	GET(function,params);
+      RequestParams params = new RequestParams();
+        for (int i = 0; i < parameters.size(); i++) 
+        {
+          params.put(getPairs(parameters, i, 0), getPairs(parameters, i, 0));
+        }
+        GET(function,params);
     }
 
     // ------------------------
@@ -211,62 +216,62 @@ public class AsteroidDB extends AndroidNonvisibleComponent implements Component 
     @SimpleFunction(description = "Returns the object in the JSON with key. Used to parse AsteroidDB responses. JSONArrays are automatically converted to App Inventor Lists.")
     public Object ParseResult(String result, String key)
     {
-    	JSONObject jb = new JSONObject(result);
-    	Object ob = new Object();
+      JSONObject jb = new JSONObject(result);
+      Object ob = new Object();
 
-    	// The variable which used for storing list of list values.
-    	ArrayList<YailList> responseArray = new ArrayList<YailList>();
+      // The variable which used for storing list of list values.
+      ArrayList<YailList> responseArray = new ArrayList<YailList>();
 
-    	// The variable which used for storing String values.
-    	ArrayList<String> responseAltArray = new ArrayList<String>();
+      // The variable which used for storing String values.
+      ArrayList<String> responseAltArray = new ArrayList<String>();
 
-    	boolean ISLISTOFLIST = false;
+      boolean ISLISTOFLIST = false;
 
-    	// If user are trying to get the array from JSON,
-    	// convert it to YailList, to make it more compatible with App Inventor.
-    	if (jb.optJSONArray(key) != null) 
-    	{
-    		JSONArray ja = (JSONArray)(jb.get(key));
-    		// AsteroidDB returns list in list, so it is required to use for loop twice,
-    		// So it can read all values from JSONArray and add it to ArrayList. 
-    		// [['tag1','value1'],['tag2','value2']] 
-    		for (int i = 0; i < ja.length(); i++) 
-    		{
-    			JSONArray innerja = ja.optJSONArray(i);
-    			if (innerja != null) 
-    			{
-    				ISLISTOFLIST = true;
-    				ArrayList<String> pairs = new ArrayList<String>();
-    				for (int j = 0; j < innerja.length(); j++)
-    				{
-    					pairs.add(innerja.getString(j));
-    				}
-    				responseArray.add(YailList.makeList(pairs));
-    			}
-    			else
-    			{
-    				// If there is no JSONArray in the JSONArray, this means, there is no "list in list" situation.
-    				// This means object can be added to the result array directly.
-    				ISLISTOFLIST = false;
-    				responseAltArray.add(ja.getString(i));
-    			}
-    			
-    		}
-    		// Converts ArrayList to YailList.
-    		if (ISLISTOFLIST) {
-    			return YailList.makeList(responseArray);
-    		}
-    		else {
-    			return YailList.makeList(responseAltArray);
-    		}
-    	// If it is not a JSONArray, then just return the value by reading the JSON.
-    	}
-    	else
-    	{
-    		ob = jb.get(key);
-    		return ob;
-    	}
-    	
+      // If user are trying to get the array from JSON,
+      // convert it to YailList, to make it more compatible with App Inventor.
+      if (jb.optJSONArray(key) != null) 
+      {
+        JSONArray ja = (JSONArray)(jb.get(key));
+        // AsteroidDB returns list in list, so it is required to use for loop twice,
+        // So it can read all values from JSONArray and add it to ArrayList. 
+        // [['tag1','value1'],['tag2','value2']] 
+        for (int i = 0; i < ja.length(); i++) 
+        {
+          JSONArray innerja = ja.optJSONArray(i);
+          if (innerja != null) 
+          {
+            ISLISTOFLIST = true;
+            ArrayList<String> pairs = new ArrayList<String>();
+            for (int j = 0; j < innerja.length(); j++)
+            {
+              pairs.add(innerja.getString(j));
+            }
+            responseArray.add(YailList.makeList(pairs));
+          }
+          else
+          {
+            // If there is no JSONArray in the JSONArray, this means, there is no "list in list" situation.
+            // This means object can be added to the result array directly.
+            ISLISTOFLIST = false;
+            responseAltArray.add(ja.getString(i));
+          }
+          
+        }
+        // Converts ArrayList to YailList.
+        if (ISLISTOFLIST) {
+          return YailList.makeList(responseArray);
+        }
+        else {
+          return YailList.makeList(responseAltArray);
+        }
+      // If it is not a JSONArray, then just return the value by reading the JSON.
+      }
+      else
+      {
+        ob = jb.get(key);
+        return ob;
+      }
+      
     }
 
     // ------------------------
@@ -275,81 +280,85 @@ public class AsteroidDB extends AndroidNonvisibleComponent implements Component 
 
     private String getPairs(YailList list, int i, int j)
     {
-    	return ((YailList)(list.getObject(i))).getString(j);
+      return ((YailList)(list.getObject(i))).getString(j);
     }
 
     private void POST(String functionName, RequestParams param)
     {
         AsteroidDBRestClient.post(BASE_URL + functionName, param, new JsonHttpResponseHandler() {
-      		@Override
-    		public void onStart() {
-        	  OnStart();
-    		}
+          @Override
+          public void onStart() {
+            OnStart();
+          }
 
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-              if (response.getString("action") == "ERROR") {
-                OnError(response.toString(), statusCode, "");
-              }
-              else 
-              {
-                OnSuccess(response.getString("action"),response.toString());
-              }
+          @Override
+          public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            if (response.getString("action") == "ERROR") {
+              OnError(response.toString(), statusCode);
             }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable e) {
-                //super.onFailure(statusCode, headers, errorResponse, e);
-                OnError(errorResponse,statusCode, e.getMessage());
+            else 
+            {
+              OnSuccess(response.getString("action"), response.toString());
             }
+          }
 
-            @Override
-			public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-				OnError(errorResponse.toString(), statusCode, throwable.getMessage());
-			}
+          @Override
+          public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable e) {
+            //super.onFailure(statusCode, headers, errorResponse, e);
+            OnError(errorResponse, statusCode);
+          }
 
-            @Override
-    		public void onRetry(int retryNo) {
-        		//OnRetry(retryNo);
-			}
+          @Override
+          public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+            try
+            {
+                OnError(errorResponse.toString(), statusCode);
+            }
+            catch (Exception e)
+            {
+                OnError(e.toString(), 0);
+            }
+          }
         });
     }
 
     private void GET(String functionName, RequestParams param)
     {
-      AsteroidDBRestClient.get(BASE_URL + functionName, param, new JsonHttpResponseHandler() {
-            @Override
-    		public void onStart() {
-        	  OnStart();
-    		}
+        AsteroidDBRestClient.get(BASE_URL + functionName, param, new JsonHttpResponseHandler() {
+          @Override
+          public void onStart() {
+            OnStart();
+          }
 
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-              if (response.getString("action") == "ERROR") {
-                OnError(response.toString(), statusCode, "");
-              }
-              else 
-              {
-                OnSuccess(response.getString("action"),response.toString());
-              }
+          @Override
+          public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            if (response.getString("action") == "ERROR") {
+              OnError(response.toString(), statusCode);
             }
+            else 
+            {
+              OnSuccess(response.getString("action"),response.toString());
+            }
+          }
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable e) {
+          @Override
+          public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable e) {
                 //super.onFailure(statusCode, headers, errorResponse, e);
-                OnError(errorResponse, statusCode, e.getMessage());
+            OnError(errorResponse, statusCode);
+          }
+
+          @Override
+          public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+            try
+            {
+                OnError(errorResponse.toString(), statusCode);
             }
-
-            @Override
-			public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-				OnError(errorResponse.toString(), statusCode, throwable.getMessage());
-			}
-
-            @Override
-    		public void onRetry(int retryNo) {
-        		//OnRetry(retryNo);
-			}
-      });
+            catch (Exception e)
+            {
+                OnError(e.toString(), 0);
+            }
+          }
+        });
     }
     
 }
