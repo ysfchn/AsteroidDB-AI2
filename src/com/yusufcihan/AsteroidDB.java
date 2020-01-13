@@ -1,4 +1,4 @@
-package com.yusufcihan.aix.AsteroidDB; 
+package com.yusufcihan; 
 
 import com.google.appinventor.components.annotations.*;
 import com.google.appinventor.components.runtime.*;
