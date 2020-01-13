@@ -1,4 +1,4 @@
-package com.yusufcihan.asteroiddb; 
+package com.yusufcihan.aix.AsteroidDB; 
 
 import com.google.appinventor.components.annotations.*;
 import com.google.appinventor.components.runtime.*;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
                    iconName = "https://yusufcihan.com/img/asteroiddb.png")
 @SimpleObject(external = true)
 @UsesPermissions(permissionNames = "android.permission.INTERNET")
-@UsesLibraries(libraries = "httpclient.jar,android-async-http.jar,json.jar")
+@UsesLibraries(libraries = "httpclient-4.4.1.2.jar,android-async-http-1.4.10,json.jar")
 public class AsteroidDB extends AndroidNonvisibleComponent implements Component {
 
     private static String BASE_URL = "";
@@ -216,6 +216,8 @@ public class AsteroidDB extends AndroidNonvisibleComponent implements Component 
     @SimpleFunction(description = "Returns the object in the JSON with key. Used to parse AsteroidDB responses. JSONArrays are automatically converted to App Inventor Lists.")
     public Object ParseResult(String result, String key)
     {
+      try
+      {
       JSONObject jb = new JSONObject(result);
       Object ob = new Object();
 
@@ -271,6 +273,11 @@ public class AsteroidDB extends AndroidNonvisibleComponent implements Component 
         ob = jb.get(key);
         return ob;
       }
+      }
+      catch (JSONException h)
+      {
+      	return "";
+      }
       
     }
 
@@ -293,12 +300,12 @@ public class AsteroidDB extends AndroidNonvisibleComponent implements Component 
 
           @Override
           public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-            if (response.getString("action") == "ERROR") {
+            if (response.optString("action","NOT-FOUND") == "ERROR") {
               OnError(response.toString(), statusCode);
             }
             else 
             {
-              OnSuccess(response.getString("action"), response.toString());
+              OnSuccess(response.optString("action","NOT-FOUND"), response.toString());
             }
           }
 
@@ -332,12 +339,12 @@ public class AsteroidDB extends AndroidNonvisibleComponent implements Component 
 
           @Override
           public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-            if (response.getString("action") == "ERROR") {
+            if (response.optString("action","NOT-FOUND") == "ERROR") {
               OnError(response.toString(), statusCode);
             }
             else 
             {
-              OnSuccess(response.getString("action"),response.toString());
+              OnSuccess(response.optString("action","NOT-FOUND"),response.toString());
             }
           }
 
@@ -385,4 +392,3 @@ class AsteroidDBRestClient {
       BASE_URL = url;
   }
 }
-
